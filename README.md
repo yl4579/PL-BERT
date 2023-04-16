@@ -59,8 +59,9 @@ from collections import OrderedDict
 new_state_dict = OrderedDict()
 for k, v in state_dict.items():
     name = k[7:] # remove `module.`
-    new_state_dict[name] = v
-# load params
+    if name.startswith('encoder.'):
+        name = name[8:] # remove `encoder.`
+        new_state_dict[name] = v
 bert.load_state_dict(new_state_dict)
 
 nets = Munch(bert=bert,
