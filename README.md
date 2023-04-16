@@ -8,9 +8,108 @@ Paper: [https://arxiv.org/abs/2301.08810](https://arxiv.org/abs/2301.08810)
 
 Audio samples: [https://pl-bert.github.io/](https://pl-bert.github.io/)
 
+## Pre-requisites
+1. Python >= 3.7
+2. Clone this repository:
+```bash
+git clone https://github.com/yl4579/PL-BERT.git
+cd PL-BERT
+```
+3. Create a new environment (recommended):
+```bash
+conda create --name BERT python=3.8
+conda activate BERT
+```
+4. Install python requirements: 
+```bash
+pip install pandas singleton-decorator datasets transformers accelerate nltk phonemizer sacremoses pebble
+```
+
+## Preprocessing
+Please refer to the notebook [preprocess.ipynb](https://github.com/yl4579/PL-BERT/blob/main/preprocess.ipynb) for more details. The preprocessing is for English Wikipedia dataset only. I will make a new branch for Japanese if I have extra time to demostrate training on other languages. 
+
 ## Trianing
-# Under construction
+Please run each cell in the notebook [train.ipynb](https://github.com/yl4579/PL-BERT/blob/main/train.ipynb). You will need to change the line
+`config_path = "Configs/config.yml"` in cell 2 if you wish to use a different config file. The training code is in Jupyter notebook primarily because the initial epxeriment was conducted on Jupyter notebook, but you can easily make it a Python script if you want to. 
 
-## Inference
-# Under construction
+## Finetuning
+Here is an example of how to use it for StyleTTS finetuning. You can use it for other TTS models by replacing the text encoder with the pre-trained PL-BERT.
+1. Modify line 683 in [models.py](https://github.com/yl4579/StyleTTS/blob/main/models.py#L683) with the following code to load BERT model in to StyleTTS:
+```python
+from transformers import AlbertConfig, AlbertModel
 
+log_dir = "YOUR PL-BERT CHECKPOINT PATH"
+config_path = os.path.join(log_dir, "config.yml")
+plbert_config = yaml.safe_load(open(config_path))
+
+albert_base_configuration = AlbertConfig(**plbert_config['model_params'])
+bert = AlbertModel(albert_base_configuration)
+
+files = os.listdir(log_dir)
+ckpts = []
+for f in os.listdir(log_dir):
+    if f.startswith("step_"): ckpts.append(f)
+
+iters = [int(f.split('_')[-1].split('.')[0]) for f in ckpts if os.path.isfile(os.path.join(log_dir, f))]
+iters = sorted(iters)[-1]
+        
+checkpoint = torch.load(log_dir + "/step_" + str(iters) + ".t7", map_location='cpu')
+state_dict = checkpoint['net']
+from collections import OrderedDict
+new_state_dict = OrderedDict()
+for k, v in state_dict.items():
+    name = k[7:] # remove `module.`
+    new_state_dict[name] = v
+# load params
+bert.load_state_dict(new_state_dict)
+
+nets = Munch(bert=bert,
+  # linear projection to match the hidden size (BERT 768, StyleTTS 512)
+  bert_encoder=nn.linear(plbert_config['model_params']['hidden_size'], args.hidden_dim),
+  predictor=predictor,
+    decoder=decoder,
+             pitch_extractor=pitch_extractor,
+                 text_encoder=text_encoder,
+                 style_encoder=style_encoder,
+             text_aligner = text_aligner,
+            discriminator=discriminator)
+```
+2. Modify line 126 in [train_second.py](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L126) with the following code to adjust the learning rate of BERT model:
+```python
+# for stability
+for g in optimizer.optimizers['bert'].param_groups:
+    g['betas'] = (0.9, 0.99)
+    g['lr'] = 1e-5
+    g['initial_lr'] = 1e-5
+    g['min_lr'] = 0
+    g['weight_decay'] = 0.01
+```
+3. Modify line 211 in [train_second.py](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L211) with the following code to replace text encoder with BERT encoder:
+```python
+            bert_dur = model.bert(texts, attention_mask=(~text_mask).int()).last_hidden_state
+            d_en = model.bert_encoder(bert_dur).transpose(-1, -2)
+            d, _ = model.predictor(d_en, s, 
+                                                    input_lengths, 
+                                                    s2s_attn_mono, 
+                                                    m)
+```
+and [line 257](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L257):
+```python
+            _, p = model.predictor(d_en, s, 
+                                                    input_lengths, 
+                                                    s2s_attn_mono, 
+                                                    m)
+```
+4. Modify line 347 in [train_second.py](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L347) with the following code to make sure parameters of BERT model are updated:
+```python
+            optimizer.step('bert_encoder')
+            optimizer.step('bert')
+```
+
+The pre-trained PL-BERT on Wikipedia for 1M steps can be downloaded at: [PL-BERT link](https://drive.google.com/file/d/19gzPmWKdmakeVszSNuUtVMMBaFYMQqJ7/view?usp=sharing).
+
+The demo for LJSpeech dataset is **under construction**. 
+
+## References
+- [NVIDIA/NeMo-text-processing](https://github.com/NVIDIA/NeMo-text-processing)
+- [tomaarsen/TTSTextNormalization](https://github.com/tomaarsen/TTSTextNormalization)
