@@ -19,6 +19,7 @@ cd PL-BERT
 ```bash
 conda create --name BERT python=3.8
 conda activate BERT
+python -m ipykernel install --user --name BERT --display-name "BERT"
 ```
 4. Install python requirements: 
 ```bash
