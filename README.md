@@ -31,7 +31,7 @@ Please refer to the notebook [preprocess.ipynb](https://github.com/yl4579/PL-BER
 
 ## Trianing
 Please run each cell in the notebook [train.ipynb](https://github.com/yl4579/PL-BERT/blob/main/train.ipynb). You will need to change the line
-`config_path = "Configs/config.yml"` in cell 2 if you wish to use a different config file. The training code is in Jupyter notebook primarily because the initial epxeriment was conducted on Jupyter notebook, but you can easily make it a Python script if you want to. 
+`config_path = "Configs/config.yml"` in cell 2 if you wish to use a different config file. The training code is in Jupyter notebook primarily because the initial epxeriment was conducted in Jupyter notebook, but you can easily make it a Python script if you want to. 
 
 ## Finetuning
 Here is an example of how to use it for StyleTTS finetuning. You can use it for other TTS models by replacing the text encoder with the pre-trained PL-BERT.
@@ -67,7 +67,7 @@ bert.load_state_dict(new_state_dict)
 
 nets = Munch(bert=bert,
   # linear projection to match the hidden size (BERT 768, StyleTTS 512)
-  bert_encoder=nn.linear(plbert_config['model_params']['hidden_size'], args.hidden_dim),
+  bert_encoder=nn.Linear(plbert_config['model_params']['hidden_size'], args.hidden_dim),
   predictor=predictor,
     decoder=decoder,
              pitch_extractor=pitch_extractor,
@@ -95,13 +95,23 @@ for g in optimizer.optimizers['bert'].param_groups:
                                                     s2s_attn_mono, 
                                                     m)
 ```
-and [line 257](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L257):
+[line 257](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L257):
 ```python
             _, p = model.predictor(d_en, s, 
                                                     input_lengths, 
                                                     s2s_attn_mono, 
                                                     m)
 ```
+and [line 415](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L415):
+```python
+                bert_dur = model.bert(texts, attention_mask=(~text_mask).int()).last_hidden_state
+                d_en = model.bert_encoder(bert_dur).transpose(-1, -2)
+                d, p = model.predictor(d_en, s, 
+                                                    input_lengths, 
+                                                    s2s_attn_mono, 
+                                                    m)
+```
+
 4. Modify line 347 in [train_second.py](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L347) with the following code to make sure parameters of BERT model are updated:
 ```python
             optimizer.step('bert_encoder')
@@ -110,7 +120,7 @@ and [line 257](https://github.com/yl4579/StyleTTS/blob/main/train_second.py#L257
 
 The pre-trained PL-BERT on Wikipedia for 1M steps can be downloaded at: [PL-BERT link](https://drive.google.com/file/d/19gzPmWKdmakeVszSNuUtVMMBaFYMQqJ7/view?usp=sharing).
 
-The demo for LJSpeech dataset is **under construction**. 
+The demo on LJSpeech dataset along with the pre-modified StyleTTS repo and pre-trained models can be downloaded here: [StyleTTS Link](https://drive.google.com/file/d/18DU4JrW1rhySrIk-XSxZkXt2MuznxoM-/view?usp=sharing). This zip file contains the code modification above, the pre-trained PL-BERT model listed above, pre-trained StyleTTS w/ PL-BERT, pre-trained StyleTTS w/o PL-BERT and pre-trained HifiGAN on LJSpeech from the StyleTTS repo.
 
 ## References
 - [NVIDIA/NeMo-text-processing](https://github.com/NVIDIA/NeMo-text-processing)
