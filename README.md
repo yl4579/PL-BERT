@@ -27,7 +27,7 @@ pip install pandas singleton-decorator datasets "transformers<4.33.3" accelerate
 ```
 
 ## Preprocessing
-Please refer to the notebook [preprocess.ipynb](https://github.com/yl4579/PL-BERT/blob/main/preprocess.ipynb) for more details. The preprocessing is for English Wikipedia dataset only. I will make a new branch for Japanese if I have extra time to demostrate training on other languages. 
+Please refer to the notebook [preprocess.ipynb](https://github.com/yl4579/PL-BERT/blob/main/preprocess.ipynb) for more details. The preprocessing is for English Wikipedia dataset only. I will make a new branch for Japanese if I have extra time to demostrate training on other languages. You may also refer to [#6](https://github.com/yl4579/PL-BERT/issues/6#issuecomment-1797869275) for preprocessing in other languages like Japanese. 
 
 ## Trianing
 Please run each cell in the notebook [train.ipynb](https://github.com/yl4579/PL-BERT/blob/main/train.ipynb). You will need to change the line
