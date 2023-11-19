@@ -23,7 +23,7 @@ python -m ipykernel install --user --name BERT --display-name "BERT"
 ```
 4. Install python requirements: 
 ```bash
-pip install pandas singleton-decorator datasets transformers accelerate nltk phonemizer sacremoses pebble
+pip install pandas singleton-decorator datasets "transformers<4.33.3" accelerate nltk phonemizer sacremoses pebble
 ```
 
 ## Preprocessing
