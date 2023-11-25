@@ -99,7 +99,9 @@ class FilePathDataset(torch.utils.data.Dataset):
             for m in masked_idx:
                 if m >= random_start and m < random_start + self.max_mel_length:
                     masked_index.append(m - random_start)
-                    
+        else:
+            masked_index = masked_idx
+            
         phoneme = self.text_cleaner(phoneme)
         labels = self.text_cleaner(labels)
         words = [self.token_maps[w]['token'] for w in words]
