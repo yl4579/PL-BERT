@@ -29,12 +29,12 @@ pip install pandas singleton-decorator datasets "transformers<4.33.3" accelerate
 ## Preprocessing
 Please refer to the notebook [preprocess.ipynb](https://github.com/yl4579/PL-BERT/blob/main/preprocess.ipynb) for more details. The preprocessing is for English Wikipedia dataset only. I will make a new branch for Japanese if I have extra time to demostrate training on other languages. You may also refer to [#6](https://github.com/yl4579/PL-BERT/issues/6#issuecomment-1797869275) for preprocessing in other languages like Japanese. 
 
-## Trianing
+## Training
 Please run each cell in the notebook [train.ipynb](https://github.com/yl4579/PL-BERT/blob/main/train.ipynb). You will need to change the line
 `config_path = "Configs/config.yml"` in cell 2 if you wish to use a different config file. The training code is in Jupyter notebook primarily because the initial epxeriment was conducted in Jupyter notebook, but you can easily make it a Python script if you want to. 
 
-## Finetuning
-Here is an example of how to use it for StyleTTS finetuning. You can use it for other TTS models by replacing the text encoder with the pre-trained PL-BERT.
+## Fine-tuning
+Here is an example of how to use it for StyleTTS fine-tuning. You can use it for other TTS models by replacing the text encoder with the pre-trained PL-BERT.
 1. Modify line 683 in [models.py](https://github.com/yl4579/StyleTTS/blob/main/models.py#L683) with the following code to load BERT model in to StyleTTS:
 ```python
 from transformers import AlbertConfig, AlbertModel
