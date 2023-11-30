@@ -4,6 +4,7 @@ from singleton_decorator import singleton
 import re
 
 from .Roman import Roman
+from numbers_malayalam import expand_numbers
 
 @singleton
 class Cardinal:
@@ -40,7 +41,7 @@ class Cardinal:
       - For example: "20" -> "two", in some situations.
       - These cases account to a total of 37 cases between the total 133744 CARDINAL tokens.
     """
-    def __init__(self):
+    def __init__(self,language='en'):
         super().__init__()
         # Regex to remove non digits (spaces, commas etc.), but keep "-"
         self.filter_regex = re.compile("[^0-9\-]")
@@ -113,6 +114,8 @@ class Cardinal:
 
         # Roman conversion
         self.roman = Roman()
+
+        self.language = language
 
     def _give_chunk(self, num_str: str, size:int = 3) -> str:
         # While string not empty
@@ -187,7 +190,15 @@ class Cardinal:
                 text_list = chunk_text_list + text_list
         
         # 15 Join the list elements with spaces
-        token = " ".join(text_list)
+        if self.language == 'ml' : 
+            try : 
+                token = expand_numbers(int(token))[0]
+            except : 
+                token = " ".join(text_list)
+        else : 
+            token = " ".join(text_list)
+
+
 
         # 16 Apply pre and suffixes, if applicable
         if prefix:
