@@ -19,6 +19,8 @@ dataset_params:
     word_mask_prob: 0.15 # probability to mask the entire word
     phoneme_mask_prob: 0.1 # probability to mask each phoneme
     replace_prob: 0.2 # probablity to replace phonemes
+
+    multilingual_tokenizer : "bert-base-multilingual-cased"
     
 model_params:
     vocab_size: 178
