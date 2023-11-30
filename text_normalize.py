@@ -5,6 +5,7 @@ from nltk.tokenize.treebank import TreebankWordDetokenizer
 import unicodedata
 
 import os, sys
+import re
 
 from converters.Plain      import Plain
 from converters.Punct      import Punct
@@ -23,6 +24,8 @@ from converters.Fraction   import Fraction
 from converters.Telephone  import Telephone
 from converters.Address    import Address
 from converters.Roman    import Roman
+from converters.Range    import Range
+
 
 months = ['jan',
  'feb',
@@ -64,7 +67,8 @@ labels = {
     "FRACTION": Fraction(),
     "TELEPHONE": Telephone(),
     "ADDRESS": Address(),
-    "ROMAN": Roman()
+    "ROMAN": Roman(),
+    "RANGE": Range()
 }
 
 def split_given_size(a, size):
@@ -83,9 +87,16 @@ def normalize_split(text):
     
     return normalized_text.replace(" ' s", "'s")
 
+def is_malayalam(word) : 
+    '''
+    returns match if string starts with malayalam unicode block
+    https://en.wikipedia.org/wiki/Malayalam_(Unicode_block)
+    '''
+    return re.match('([\u0d00-\u0d7f\u200d]+)',word)
+
 def remove_accents(input_str):
     nfkd_form = unicodedata.normalize('NFKD', input_str)
-    return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
+    return u"".join([c for c in nfkd_form if not unicodedata.combining(c) or is_malayalam(c)])
 
 def has_numbers(inputString):
     return any(char.isdigit() for char in inputString)
@@ -107,6 +118,9 @@ def is_fraction(inputString):
 
 def is_decimal(inputString):
     return "." in inputString
+
+def is_range(inputString) : 
+    return "-" in inputString
 
 def is_url(inputString):
     return "//" in inputString or ".com" in inputString or ".html" in inputString
@@ -136,6 +150,8 @@ def normalize_single(text, prev_text = "", next_text = ""):
             text = labels['DECIMAL'].convert(text)
         elif is_cardinal(text):
             text = labels['CARDINAL'].convert(text)
+        elif is_range(text):
+            text = labels['RANGE'].convert(text)
         else:
             text = labels['DATE'].convert(text)
         
@@ -146,9 +162,13 @@ def normalize_single(text, prev_text = "", next_text = ""):
 
     return text.replace("$", "")
 
-def normalize_text(text):
+def normalize_text(text,language='en'):
     text = remove_accents(text).replace('–', ' to ').replace('-', ' - ').replace(":p", ": p").replace(":P", ": P").replace(":d", ": d").replace(":D", ": D")
     words = word_tokenize(text)
+
+    for label in labels : 
+        labels[label].language = language
+
     df = pd.DataFrame(words, columns=['before'])
 
     df['after'] = df['before']
