@@ -182,3 +182,9 @@ def normalize_text(text,language='en'):
     df['after'] = df['previous'].apply(lambda m: normalize_single(m.split('|')[1], m.split('|')[0], m.split('|')[2]))
     
     return TreebankWordDetokenizer().detokenize(df['after'].tolist()).replace("’ s", "'s").replace(" 's", "'s")
+
+if __name__ == '__main__' : 
+    text = 'hello (1200 - 1230)'
+    out = normalize_text(text,language='ml')
+    print(out)
+

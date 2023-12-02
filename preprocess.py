@@ -10,6 +10,9 @@ import yaml
 config_path = "Configs/config.yml" # you can change it to anything else
 config = yaml.safe_load(open(config_path))
 
+language = config['dataset_params'].get('language','en')
+mode = config['dataset_params'].get('mode','mono-en')
+
 # %%
 from phonemize import phonemize
 
@@ -21,26 +24,30 @@ global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us',
                                                      language_switch='remove-flags'
                                                      )
 
-#from transformers import TransfoXLTokenizer
-#tokenizer = TransfoXLTokenizer.from_pretrained(config['dataset_params']['tokenizer']) # you can use any other tokenizers if you want to
 
-from transformers import BertTokenizer
-tokenizer = BertTokenizer.from_pretrained(config['dataset_params']['multilingual_tokenizer'])
+if mode == 'mono-en' : 
+    from transformers import TransfoXLTokenizer
+    tokenizer = TransfoXLTokenizer.from_pretrained(config['dataset_params']['tokenizer']) # you can use any other tokenizers if you want to
+elif 'multi' in mode :     
+    from transformers import BertTokenizer
+    tokenizer = BertTokenizer.from_pretrained(config['dataset_params']['tokenizer'])
+
 # %% [markdown]
 # ### Process dataset
 
 # %%
 from datasets import load_dataset
-#dataset = load_dataset("wikipedia", "20220301.en")['train'] # you can use other version of this dataset
-#dataset = load_dataset("wikipedia", "20220301.ml")['train'] # you can use other version of this dataset
-#dataset  = load_dataset("wikipedia", '20231120.ml', beam_runner='DirectRunner')['train']
-dataset = load_dataset("wikipedia",  language="ml", date="20231101",beam_runner='DirectRunner')['train']
 
 
+src, suffix = config['data_folder'].split('_')
+if 'en' in suffix  : 
+     dataset = load_dataset(src, "20220301.en")['train'] # you can use other version of this dataset
+elif 'ml' in suffix :
+     dataset = load_dataset(src,  language="ml", date="20231101",beam_runner='DirectRunner')['train']
 
 
 # %%
-root_directory = "./wiki_ml_phoneme" # set up root directory for multiprocessor processing
+root_directory = f"./wiki_{language}_phoneme" # set up root directory for multiprocessor processing
 
 # %%
 import os
@@ -56,7 +63,7 @@ def process_shard(i):
     processed_dataset = shard.map(lambda t: phonemize(t['text'], 
                                                       global_phonemizer, 
                                                       tokenizer,
-                                                      language="ml"
+                                                      language=language
                                                       ), 
                                                       remove_columns=['text'],
                                                       )
