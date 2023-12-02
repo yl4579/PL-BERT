@@ -21,7 +21,7 @@ special_mappings = {
 def issubword(word) : 
     return word.startswith('##')
 
-def phonemize_word(word) : 
+def phonemize_word(global_phonemizer, word) : 
     # removing subword indicator ## from the string before phonemizing 
     if issubword(word) : 
         word = word[2:]
@@ -43,7 +43,7 @@ def phonemize(text, global_phonemizer, tokenizer,language='en'):
     words = tokenizer.tokenize(text)
     ids = tokenizer.encode(text)[1:-1]
     
-    phonemes_bad = [ phonemize_word(word) if word not in string.punctuation else word for word in words]
+    phonemes_bad = [ phonemize_word(global_phonemizer, word) if word not in string.punctuation else word for word in words]
     input_ids = []
     phonemes = []
     
