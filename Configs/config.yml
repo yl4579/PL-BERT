@@ -20,6 +20,7 @@ dataset_params:
     phoneme_mask_prob: 0.1 # probability to mask each phoneme
     replace_prob: 0.2 # probablity to replace phonemes
 
+
 model_params:
     vocab_size: 178
     hidden_size: 768
