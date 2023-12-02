@@ -92,7 +92,7 @@ def is_malayalam(word) :
     returns match if string starts with malayalam unicode block
     https://en.wikipedia.org/wiki/Malayalam_(Unicode_block)
     '''
-    return re.match('([\u0d00-\u0d7f\u200d]+)',word)
+    return re.match('([\u0d00-\u0d7f]+)',word)
 
 def remove_accents(input_str):
     nfkd_form = unicodedata.normalize('NFKD', input_str)
@@ -164,8 +164,12 @@ def normalize_single(text, prev_text = "", next_text = ""):
 
 def normalize_text(text,language='en'):
     text = remove_accents(text).replace('–', ' to ').replace('-', ' - ').replace(":p", ": p").replace(":P", ": P").replace(":d", ": d").replace(":D", ": D")
+    # removing zero-width-no-joiner which is seen in malayalam text
+    # https://en.wikipedia.org/wiki/Zero-width_non-joiner
+    text = text.replace('\u200c','')
     words = word_tokenize(text)
 
+    # hack - changing the language attribute for the conversion pipeline
     for label in labels : 
         labels[label].language = language
 
