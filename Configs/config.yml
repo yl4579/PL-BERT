@@ -20,7 +20,6 @@ dataset_params:
     phoneme_mask_prob: 0.1 # probability to mask each phoneme
     replace_prob: 0.2 # probablity to replace phonemes
 
-    multilingual_tokenizer : "bert-base-multilingual-cased"
     
 model_params:
     vocab_size: 178
@@ -29,4 +28,3 @@ model_params:
     intermediate_size: 2048
     max_position_embeddings: 512
     num_hidden_layers: 12
-    dropout: 0.1
