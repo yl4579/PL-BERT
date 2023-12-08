@@ -133,10 +133,10 @@ def normalize_single(text, prev_text = "", next_text = ""):
         text = labels['ELECTRONIC'].convert(text).upper()
     elif has_numbers(text):
         if has_month(prev_text):
-            prev_text = prev_text.lower()
+            prev_text = labels['DATE'].get_month(prev_text.lower())
             text = labels['DATE'].convert(prev_text + " " + text).replace(prev_text, "").strip()
         elif has_month(next_text):
-            next_text = next_text.lower()
+            next_text = labels['DATE'].get_month(next_text.lower())
             text = labels['DATE'].convert(text + " " + next_text).replace(next_text, "").strip()
         elif is_oridinal(text):
             text = labels['ORDINAL'].convert(text)
@@ -184,7 +184,7 @@ def normalize_text(text,language='en'):
     return TreebankWordDetokenizer().detokenize(df['after'].tolist()).replace("’ s", "'s").replace(" 's", "'s")
 
 if __name__ == '__main__' : 
-    text = 'hello (1200 - 1230)'
+    text = 'hello (23 Jan 2020, 12:10 AM)'
     out = normalize_text(text,language='ml')
     print(out)
 

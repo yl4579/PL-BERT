@@ -28,7 +28,7 @@ class Date:
     Note:
     This converters essentially uses regular expressions only. The regular expressions could be used to classify the data as well.
     """
-    def __init__(self):
+    def __init__(self,language='en'):
         super().__init__()
         # Regex to remove dots
         self.filter_regex = re.compile(r"[,']")
@@ -115,6 +115,7 @@ class Date:
         # Cardinal and Ordinal conversion
         self.cardinal = Cardinal()
         self.ordinal = Ordinal()
+        self.language = language
     
     def convert(self, token: str) -> str:
 
@@ -153,9 +154,9 @@ class Date:
             # If we want the "the D of M Y" format
             if dmy:
                 if day:
-                    result_list.append("the")
+                    if self.language =='en' : result_list.append("the")
                     result_list.append(day)
-                    result_list.append("of")
+                    if self.language =='en' : result_list.append("of")
                 result_list.append(month)
             else:
                 # Otherwise use "M D Y" format
