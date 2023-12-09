@@ -127,8 +127,7 @@ class Ordinal:
         # Convert the number to cardinal style, and convert the last word to
         # the ordinal style using self.trans_denominator.
         number_text_list = self.cardinal.convert(token).split(" ")
-        if self.language == 'en' :
-            number_text_list[-1] = self.trans_denominator[number_text_list[-1]]
+        number_text_list[-1] = self.trans_denominator[number_text_list[-1]]
         result = " ".join(number_text_list)
 
         # 6 Apply pre- and suffixes, if applicable

@@ -16,7 +16,7 @@ class Digit:
     007 -> double o 7
     while 003 -> o o 3
     """
-    def __init__(self,language='en'):
+    def __init__(self):
         super().__init__()
         # Regex used to filter out non digits
         self.filter_regex = re.compile("[^0-9]")
@@ -33,33 +33,13 @@ class Digit:
             "8": "eight",
             "9": "nine"
         }
-        # Translation dict to convert digits to text
-        self.trans_dict_malayalam = {
-            "0":  "പൂജ്യം",
-            "1":  "ഒന്ന്",
-            "2":  "രണ്ട്",
-            "3":  "മൂന്ന്",
-            "4":  "നാല്",
-            "5":  "അഞ്ച്",
-            "6":  "ആറ്",
-            "7":  "ഏഴ്",
-            "8":  "എട്ട്",
-            "9":  "ഒമ്പത്"
-        }
-
 
     def convert(self, token: str) -> str:
         # 1 Filter out anything that isn't a digit
         token = self.filter_regex.sub("", token)
         # 2 Check for special case
         if token == "007":
-            if self.language == 'en' : 
-                return "double o seven"
-            elif self.language == 'ml' : 
-                return "ഡബിൾ ഓ  സെവൻ"
+            return "double o seven"
         # 3 & 4 Convert each digit to text and space out the text
-        if self.language == 'en' :     
-            token = " ".join([self.trans_dict[c] for c in token])
-        elif self.language == 'ml' :   
-            token = " ".join([self.trans_dict_malayalam[c] for c in token])
+        token = " ".join([self.trans_dict[c] for c in token])
         return token

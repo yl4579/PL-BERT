@@ -24,7 +24,7 @@ class Decimal:
     Edge cases:
     3.66E-49 -> three point six six times ten to the minus fourty nine
     """
-    def __init__(self,language='en'):
+    def __init__(self):
         super().__init__()
         # Regex to detect input of the sort "x.y" or ".y"
         self.decimal_regex = re.compile(r"(-?\d*)\.(\d+)(.*)")
@@ -60,7 +60,6 @@ class Decimal:
         self.suffix_regex = re.compile(f" *({'|'.join(self.suffixes)})")
         # Regular expression for xEy
         self.e_suffix_regex = re.compile(r" *E(-?\d+)")
-        self.language = language
 
     def convert(self, token: str) -> str:
 
@@ -104,16 +103,9 @@ class Decimal:
         # 6, 7 Only if the decimal is 0, and there is a number in front of the dot, and there is no suffix
         # then we use "zero" instead of "o".
         if len(decimal) > 0:
-            if self.language == 'en' :     
-                result_list.append("point")
-            elif self.language == 'ml' :   
-               result_list.append("ദശാംശം")
+            result_list.append("point")
             if decimal == "0" and len(number) > 0 and len(suffix) == 0:
-                if self.language == 'en' :     
-                   result_list.append("zero")
-                elif self.language == 'ml' :   
-                   result_list.append("പൂജ്യം")
-
+                result_list.append("zero")
             else:
                 # 8 Otherwise use Digit conversion
                 result_list.append(self.digit.convert(decimal))
