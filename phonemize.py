@@ -84,20 +84,12 @@ if __name__ == '__main__' :
     tname = "transfo-xl-wt103"
     tokenizer = TransfoXLTokenizer.from_pretrained(tname) # you can use any other tokenizers if you want to
 
-    from transformers import BertTokenizer
-    tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased')
-
     import phonemizer
-    global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True,language_switch='remove-flags')
+    global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
    
     text = 'hello my dear did you get the wrong @number 12 12.5'
-    #text = 'ഇവരുമായി സഹകരിക്കില്ലെന്നാണ് സംഘടയുടെ തീരുമാനം.'
-    text = 'നെഗറ്റീവ് എനർജി’ വിവാദം !'
-    from datasets import load_dataset
-    dataset = load_dataset("wikipedia",  language="ml", date="20231101",beam_runner='DirectRunner')['train']
-    text = dataset[1]['text']
     text = 'hello from (1200 - 1230 - 1240)'
     text = 'ദേശീയോദ്യാനങ്ങൾ സംരക്ഷിതപ്രദേശങ്ങളാണ്.'
-    dd = phonemize(text, global_phonemizer, tokenizer, language="ml")
+    dd = phonemize(text, global_phonemizer, tokenizer)
     pass
 
