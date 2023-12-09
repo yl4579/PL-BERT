@@ -1,5 +1,5 @@
 import string
-from text_normalize import normalize_text, remove_accents, is_malayalam
+from text_normalize import normalize_text, remove_accents 
 
 special_mappings = {
     "a": "ɐ",
@@ -18,39 +18,18 @@ special_mappings = {
     "doesn": "dˈʌzən",
 }
 
-def issubword(word) : 
-    return word.startswith('##')
 
-def phonemize_word(global_phonemizer, word) : 
-    # removing subword indicator ## from the string before phonemizing 
-    if issubword(word) : 
-        word = word[2:]
-
-    phoneme = global_phonemizer.phonemize([word], strip=True)[0]
-
-    if len(word) ==1 and is_malayalam(word) : 
-        '''
-        for single character unicode, epspeak ng is returning the language prefix
-        see issue : https://github.com/bootphon/phonemizer/issues/160
-        removing the prefix "mæleɪˈɑːləm" 
-        TODO : how to make it generic for any langauge
-        '''
-        phoneme = phoneme[11:]
-    return phoneme
-
-def phonemize(text, global_phonemizer, tokenizer,language='en'):
-    text = normalize_text(remove_accents(text),language)
+def phonemize(text, global_phonemizer, tokenizer):
+    text = normalize_text(remove_accents(text))
     words = tokenizer.tokenize(text)
-    ids = tokenizer.encode(text)[1:-1]
     
-    phonemes_bad = [ phonemize_word(global_phonemizer, word) if word not in string.punctuation else word for word in words]
+    phonemes_bad = [ global_phonemizer.phonemize([word], strip=True)[0] if word not in string.punctuation else word for word in words]
     input_ids = []
     phonemes = []
     
     for i in range(len(words)):
         word = words[i]
         phoneme = phonemes_bad[i]
-        id = ids[i]
         
         for k, v in special_mappings.items():
             if word == k:
@@ -91,7 +70,7 @@ def phonemize(text, global_phonemizer, tokenizer,language='en'):
         if "@" in word and len(word) > 1: # remove "@"
             if "@" in word and len(word) > 1:
                 phonemes.append(word.replace('@', ''))
-                input_ids.append(tokenizer.encode(word.replace('@', ''))[1])
+                input_ids.append(tokenizer.encode(word.replace('@', ''))[0])
                 continue
 
         input_ids.append(id)
@@ -113,11 +92,12 @@ if __name__ == '__main__' :
    
     text = 'hello my dear did you get the wrong @number 12 12.5'
     #text = 'ഇവരുമായി സഹകരിക്കില്ലെന്നാണ് സംഘടയുടെ തീരുമാനം.'
-    #text = 'നെഗറ്റീവ് എനർജി’ വിവാദം !: ശിശുസംരക്ഷണ ഓഫീസർക്ക് സസ്പെൻഷൻ!'
+    text = 'നെഗറ്റീവ് എനർജി’ വിവാദം !'
     from datasets import load_dataset
     dataset = load_dataset("wikipedia",  language="ml", date="20231101",beam_runner='DirectRunner')['train']
     text = dataset[1]['text']
     text = 'hello from (1200 - 1230 - 1240)'
+    text = 'ദേശീയോദ്യാനങ്ങൾ സംരക്ഷിതപ്രദേശങ്ങളാണ്.'
     dd = phonemize(text, global_phonemizer, tokenizer, language="ml")
     pass
 
