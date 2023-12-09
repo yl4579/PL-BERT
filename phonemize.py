@@ -1,5 +1,5 @@
 import string
-from text_normalize import normalize_text, remove_accents 
+from text_normalize import normalize_text, remove_accents
 
 special_mappings = {
     "a": "ɐ",
@@ -23,7 +23,7 @@ def phonemize(text, global_phonemizer, tokenizer):
     text = normalize_text(remove_accents(text))
     words = tokenizer.tokenize(text)
     
-    phonemes_bad = [ global_phonemizer.phonemize([word], strip=True)[0] if word not in string.punctuation else word for word in words]
+    phonemes_bad = [global_phonemizer.phonemize([word], strip=True)[0] if word not in string.punctuation else word for word in words]
     input_ids = []
     phonemes = []
     
@@ -73,7 +73,7 @@ def phonemize(text, global_phonemizer, tokenizer):
                 input_ids.append(tokenizer.encode(word.replace('@', ''))[0])
                 continue
 
-        input_ids.append(id)
+        input_ids.append(tokenizer.encode(word)[0])
         phonemes.append(phoneme)
         
     assert len(input_ids) == len(phonemes)
