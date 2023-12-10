@@ -12,10 +12,9 @@ class Range:
     Note:
     Punctuation always stays the same
     """
-    def __init__(self, language='en'):
+    def __init__(self):
         super().__init__()
         self.cardinal = Cardinal()
-        self.language = language
     
     def convert(self, token: str) -> str:
         numbers = re.split('-', token)
@@ -23,15 +22,9 @@ class Range:
             token = self.cardinal.convert(numbers[0])
         elif len(numbers) == 2 : 
 
-            if self.language == 'ml' :   
-                token = self.cardinal.convert(numbers[0])
-                token += ' മുതൽ  '
-                token += self.cardinal.convert(numbers[1])
-                token += ' വരെ   '
-            else : 
-                token = self.cardinal.convert(numbers[0])
-                token += ' to '
-                token += self.cardinal.convert(numbers[1])
+            token = self.cardinal.convert(numbers[0])
+            token += ' to '
+            token += self.cardinal.convert(numbers[1])
 
         else : 
             token = ''
