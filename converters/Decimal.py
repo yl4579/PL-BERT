@@ -60,7 +60,7 @@ class Decimal:
         self.suffix_regex = re.compile(f" *({'|'.join(self.suffixes)})")
         # Regular expression for xEy
         self.e_suffix_regex = re.compile(r" *E(-?\d+)")
-
+    
     def convert(self, token: str) -> str:
 
         # 1 Filter out commas
