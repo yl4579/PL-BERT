@@ -114,7 +114,6 @@ class Cardinal:
         # Roman conversion
         self.roman = Roman()
 
-
     def _give_chunk(self, num_str: str, size:int = 3) -> str:
         # While string not empty
         while num_str:
@@ -189,8 +188,6 @@ class Cardinal:
         
         # 15 Join the list elements with spaces
         token = " ".join(text_list)
-
-
 
         # 16 Apply pre and suffixes, if applicable
         if prefix:
