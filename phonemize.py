@@ -18,7 +18,6 @@ special_mappings = {
     "doesn": "dˈʌzən",
 }
 
-
 def phonemize(text, global_phonemizer, tokenizer):
     text = normalize_text(remove_accents(text))
     words = tokenizer.tokenize(text)
@@ -72,24 +71,9 @@ def phonemize(text, global_phonemizer, tokenizer):
                 phonemes.append(word.replace('@', ''))
                 input_ids.append(tokenizer.encode(word.replace('@', ''))[0])
                 continue
-
+        
         input_ids.append(tokenizer.encode(word)[0])
         phonemes.append(phoneme)
         
     assert len(input_ids) == len(phonemes)
     return {'input_ids' : input_ids, 'phonemes': phonemes}
-
-if __name__ == '__main__' :
-    from transformers import TransfoXLTokenizer
-    tname = "transfo-xl-wt103"
-    tokenizer = TransfoXLTokenizer.from_pretrained(tname) # you can use any other tokenizers if you want to
-
-    import phonemizer
-    global_phonemizer = phonemizer.backend.EspeakBackend(language='en-us', preserve_punctuation=True,  with_stress=True)
-   
-    text = 'hello my dear did you get the wrong @number 12 12.5'
-    text = 'hello from (1200 - 1230 - 1240)'
-    text = 'ദേശീയോദ്യാനങ്ങൾ സംരക്ഷിതപ്രദേശങ്ങളാണ്.'
-    dd = phonemize(text, global_phonemizer, tokenizer)
-    pass
-
