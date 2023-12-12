@@ -5,6 +5,7 @@ from nltk.tokenize.treebank import TreebankWordDetokenizer
 import unicodedata
 
 import os, sys
+import re
 
 from converters.Plain      import Plain
 from converters.Punct      import Punct
@@ -23,6 +24,8 @@ from converters.Fraction   import Fraction
 from converters.Telephone  import Telephone
 from converters.Address    import Address
 from converters.Roman    import Roman
+from converters.Range    import Range
+
 
 months = ['jan',
  'feb',
@@ -64,7 +67,8 @@ labels = {
     "FRACTION": Fraction(),
     "TELEPHONE": Telephone(),
     "ADDRESS": Address(),
-    "ROMAN": Roman()
+    "ROMAN": Roman(),
+    "RANGE": Range()
 }
 
 def split_given_size(a, size):
@@ -108,6 +112,9 @@ def is_fraction(inputString):
 def is_decimal(inputString):
     return "." in inputString
 
+def is_range(inputString) : 
+    return "-" in inputString
+
 def is_url(inputString):
     return "//" in inputString or ".com" in inputString or ".html" in inputString
 
@@ -119,10 +126,10 @@ def normalize_single(text, prev_text = "", next_text = ""):
         text = labels['ELECTRONIC'].convert(text).upper()
     elif has_numbers(text):
         if has_month(prev_text):
-            prev_text = prev_text.lower()
+            prev_text = labels['DATE'].get_month(prev_text.lower())
             text = labels['DATE'].convert(prev_text + " " + text).replace(prev_text, "").strip()
         elif has_month(next_text):
-            next_text = next_text.lower()
+            next_text = labels['DATE'].get_month(next_text.lower())
             text = labels['DATE'].convert(text + " " + next_text).replace(next_text, "").strip()
         elif is_oridinal(text):
             text = labels['ORDINAL'].convert(text)
@@ -136,6 +143,8 @@ def normalize_single(text, prev_text = "", next_text = ""):
             text = labels['DECIMAL'].convert(text)
         elif is_cardinal(text):
             text = labels['CARDINAL'].convert(text)
+        elif is_range(text):
+            text = labels['RANGE'].convert(text)
         else:
             text = labels['DATE'].convert(text)
         
@@ -149,6 +158,7 @@ def normalize_single(text, prev_text = "", next_text = ""):
 def normalize_text(text):
     text = remove_accents(text).replace('–', ' to ').replace('-', ' - ').replace(":p", ": p").replace(":P", ": P").replace(":d", ": d").replace(":D", ": D")
     words = word_tokenize(text)
+
     df = pd.DataFrame(words, columns=['before'])
 
     df['after'] = df['before']
@@ -158,3 +168,9 @@ def normalize_text(text):
     df['after'] = df['previous'].apply(lambda m: normalize_single(m.split('|')[1], m.split('|')[0], m.split('|')[2]))
     
     return TreebankWordDetokenizer().detokenize(df['after'].tolist()).replace("’ s", "'s").replace(" 's", "'s")
+
+if __name__ == '__main__' : 
+    text = 'hello (23 Jan 2020, 12:10 AM)'
+    out = normalize_text(text)
+    print(out)
+
